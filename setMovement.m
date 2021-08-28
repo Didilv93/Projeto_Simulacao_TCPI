@@ -1,7 +1,7 @@
-function [] = setMovement(sim,clientID,wheel_rl,wheel_rr,wheel_fl,wheel_fr,forwBackVel,leftRightVel,rotVel)
-    %% Apply the desired wheel velocities:
-    sim.simxSetJointTargetVelocity(clientID,wheel_rl,-forwBackVel-leftRightVel-rotVel,sim.simx_opmode_blocking);
-    sim.simxSetJointTargetVelocity(clientID,wheel_rr,-forwBackVel+leftRightVel-rotVel,sim.simx_opmode_blocking);
-    sim.simxSetJointTargetVelocity(clientID,wheel_fl,-forwBackVel-leftRightVel+rotVel,sim.simx_opmode_blocking);
-    sim.simxSetJointTargetVelocity(clientID,wheel_fr,-forwBackVel+leftRightVel+rotVel,sim.simx_opmode_blocking);
+function [] = setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,forwBackVel,leftRightVel,rotVel)
+    %% Apply the desired rolling velocities:
+    sim.simxSetJointTargetVelocity(clientID,rolling_fl,-forwBackVel-leftRightVel-rotVel,sim.simx_opmode_blocking);
+    sim.simxSetJointTargetVelocity(clientID,rolling_rl,-forwBackVel+leftRightVel-rotVel,sim.simx_opmode_blocking);
+    sim.simxSetJointTargetVelocity(clientID,rolling_rr,-forwBackVel-leftRightVel+rotVel,sim.simx_opmode_blocking);
+    sim.simxSetJointTargetVelocity(clientID,rolling_fr,-forwBackVel+leftRightVel+rotVel,sim.simx_opmode_blocking);
 end

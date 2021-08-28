@@ -2,42 +2,23 @@ clear;
 close all;
 clc;
 
-%% Configurações dos motores DC
-%Ts = 0.4;
+%% Guia para vetor de velocidades angulares
+%  __                         % __
+% |   roda frontal esquerda   %   |
+% |                           %   |
+% |   roda frontal direita    %   |
+% |                           %   |
+% |   roda traseira esquerda  %   |
+% |                           %   |
+% |__ roda traseira direita   %  _|
 
-Bm = 4.17*10^-6;
-J = 1.3*10^-6;
-Kt = 0.02661;
-Kg = 0.02661;
-La = 10.3632*10^-3;
-Ra = 15.24;
+% !IMPORTANTE!  ROTAÇÕES NA ROA SENTIDO HORÁRIO DEVEM TER SINAIS PWM
+% NEGATIVOS E NO ANT-HORÁRIO, POSIIVOS!
 
-L = 1;
-l = 1;
-r = 1;
-
-
-%A = [(-Bm/J) Kt/J; (-Kg/La) (-Ra/La)];
-A = [-0.1003 2.0469; -0.0001 -0.0659];
-%B = [0; 1/La];
-B = [0; 46.2963];
-C = [0 1];
-D = 0;
-
-sys = ss(A,B,C,D);
-%step(sys);
-
-sim('motor_DC.slx');
-w1_signal = ans.yout.get('w1');
-w2_signal = ans.yout.get('w2');
-w3_signal = ans.yout.get('w3');
-w4_signal = ans.yout.get('w4');
-w1 = w1_signal.Values.Data;
-w2 = w2_signal.Values.Data;
-w3 = w3_signal.Values.Data;
-w4 = w4_signal.Values.Data;
-
-teste = ;
+%% Dimensões do robô
+L = (3.5708e-01)/2 - (9.0000e-02)/2; % Distância do centro de massa ao eixo traseiro ou dianteiro
+l = (1.6204e-01)/2 - (9.0000e-02)/2; % Distância do centro de massa ao entre rodas lateirais
+r = (9.0000e-02)/2; % Acredito que seja o raio da roda
 
 %% Simulação, CoppeliaSim
 sim=remApi('remoteApi'); % using the prototype file (remoteApiProto.m)
@@ -53,20 +34,40 @@ if (clientID>-1)
     rolling_fl, slipping_fl, wheel_fl, ...
     rolling_fr, slipping_fr, wheel_fr] = sysCall_init(sim, clientID);
 
-    for i = length(w1_signal.Values.Time)
-        output_matrix = r/4*[1 1 1 1; -1 1 1 -1; -1/(L+l) 1/(L+l) -1/(L+l) 1/(L+l)]...
-            * [w1(i,1); w2(i,1); w2(i,1); w2(i,1)];
-        
-        nu_1 = output_matrix(1,1);
-        nu_2 = output_matrix(2,1);
-        w = output_matrix(3,1);
-        setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,nu_1,nu_2,w);
-    end
-
     while true
-        setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0.5,0);
-        %pause(10);
-        %setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0.5);
+        %% Sinal PWM Entrada (VAMOS SUBISTITUIR ESSE TREXO PELA ATUAÇÃO DA MALHA EXTERNA, O SINAL DEVE SER PWM DE ZERO
+        % À +- 3.3 V, NEGATIVO PARA GIRAR A RODA NO SENTIDO HORÁRIO, POSITIVO PARA ANTI-HORÁRIO)
+        freq_wav=10/0.2;
+        offset={-3.3/2; 0; -3.3/2; 0};
+        amp={3.3/2; 0; 3.3/2; 0};
+        t=0:0.0001:1;
+        sq_wav={offset{1}+amp{1}*square(2*pi*freq_wav.*t), offset{2}+amp{2}*square(2*pi*freq_wav.*t), ...
+            offset{3}+amp{3}*square(2*pi*freq_wav.*t), offset{4}+amp{4}*square(2*pi*freq_wav.*t)};
+
+        %% Malha Interna
+
+        [sys_motor] = getMotorSys();
+        [num,den] = tfdata(sys_motor);
+        arrayNum = cell2mat(num);
+        arrayDen = cell2mat(den);
+        sys_motor_t = poly2sym(arrayNum,s)/poly2sym(arrayDen,s);
+
+        freq_rodas = zeros(4,1);
+
+        for i = 1: 4
+            simu_sys = lsim(sys_motor, sq_wav{i}, t);
+            [freq] = getSysFrequency(simu_sys);
+            freq_rodas(i,1) = freq;
+        end
+
+        Vetor_deslocamento = r/4*[1 1 1 1; -1 1 1 -1; -1/(L+l) 1/(L+l) -1/(L+l) 1/(L+l)] * freq_rodas;
+
+        %plot(t,sq_wav); ylabel('w pwm(t)'); xlabel('t'); grid; figure; hold on;
+        %plot(t,simu_sys); ylabel('w motor(t)'); xlabel('t'); grid;
+
+        setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+        Vetor_deslocamento(1),Vetor_deslocamento(2),Vetor_deslocamento(3));
+    
     end
     
 else
