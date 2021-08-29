@@ -116,16 +116,17 @@ if (clientID>-1)
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(2);
         case TYPES_SETUP_STATES(2)
-            error_x = positionRobo(1) - positionTag{1}(1);
-            error_y = positionRobo(1) - positionTag{1}(1);
-            taxas = [(100*error_x)/5 (100*error_y)/5];
-            [sq_wav, t] = generatePWMSignal([taxas(1) taxas(2) taxas(1) taxas(2)], [-1; -1; -1; -1]);
-            [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
-            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
-            speedVector(1),speedVector(2),speedVector(3));
-            if abs(error_x) < ERROR_MIN_DISTANCE && error_y < ERROR_MIN_DISTANCE
-                setupState = TYPES_SETUP_STATES(3);
-            end
+            %error_x = positionRobo(1) - positionTag{1}(1);
+            %error_y = positionRobo(1) - positionTag{1}(1);
+            %taxas = [(100*error_x)/5 (100*error_y)/5];
+            %[sq_wav, t] = generatePWMSignal([taxas(1) taxas(2) taxas(1) taxas(2)], [-1; -1; -1; -1]);
+            %[speedVector] = getInnerMesh(sys_motor, sq_wav, t);
+            %setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+            %speedVector(1),speedVector(2),speedVector(3));
+            %if abs(error_x) < ERROR_MIN_DISTANCE && error_y < ERROR_MIN_DISTANCE
+                %setupState = TYPES_SETUP_STATES(3);
+            %end
+            disp(eulerAnglesRobo);
         case TYPES_SETUP_STATES(3)
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(4);
