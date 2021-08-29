@@ -42,74 +42,65 @@ if (clientID>-1)
     rolling_fr, slipping_fr, wheel_fr] = sysCall_init(sim, clientID);
 
     while true
-        
+        [sys_motor] = getMotorSys();
         switch setupState
         case TYPES_SETUP_STATES(1)
             [sq_wav, t] = generatePWMSignal(10, [-1; -1; -1; -1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
         
             [sq_wav, t] = generatePWMSignal(10, [1; 1; 1; 1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
         
             [sq_wav, t] = generatePWMSignal(10, [1; -1; -1; 1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
         
             [sq_wav, t] = generatePWMSignal(10, [-1; 1; 1; -1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             [sq_wav, t] = generatePWMSignal(5, [-1; 1; -1; 1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             [sq_wav, t] = generatePWMSignal(5, [1; -1; 1; -1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             [sq_wav, t] = generatePWMSignal(5, [-1; 0; -1; 0]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             [sq_wav, t] = generatePWMSignal(5, [1; 0; 1; 0]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             [sq_wav, t] = generatePWMSignal(10, [-1; 0; 0; -1]);
-            [sys_motor] = getMotorSys();
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
                  
             [sq_wav, t] = generatePWMSignal(10, [1; 0; 0; 1]);
-            [sys_motor] = getMotorSys();
+            
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
