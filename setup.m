@@ -46,7 +46,7 @@ if (clientID>-1)
         % Leitura da posição do robô em relação ao centro do cenário
         % Leitura da posição das tags de destino em relação ao centro de massa do robô 
         [sys_motor] = getMotorSys();
-        [positionRobo] = getPositionRobo(sim,clientID);
+        [positionRobo, eulerAnglesRobo] = getPositionRobo(sim,clientID);
         [positionTag] = getPositionTags(sim,clientID);
         
         switch setupState
@@ -136,7 +136,7 @@ if (clientID>-1)
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = '';
         otherwise
-            disp('FIM DA SIMULAÇÃO');
+            disp('FIM DA  ');
             break
         end
         
