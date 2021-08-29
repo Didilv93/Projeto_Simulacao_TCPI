@@ -1954,7 +1954,7 @@ classdef remApi
             operationMode_ = int32(operationMode);
 
             [rtn ] = calllib(obj.libName,'mtlb_simxSetJointTargetVelocity',clientID,objectHandle_,targetVelocity_,operationMode_);
-        end
+        -1end
 
         function [rtn ]= simxSetJointTargetPosition(obj,clientID,objectHandle,targetPosition,operationMode)
             objectHandle_ = int32(objectHandle);
