@@ -1,8 +1,0 @@
-function [sq_wav] = generatePWMSignal(freq, )
-        %% Sinal PWM Entrada (O SINAL DEVE SER PWM DE ZERO À +- 3.3 V, NEGATIVO PARA GIRAR A RODA NO SENTIDO HORÁRIO, POSITIVO PARA ANTI-HORÁRIO)
-        offset={-3.3/2; 0; -3.3/2; 0};
-        amp={3.3/2; 0; 3.3/2; 0};
-        t=0:0.0001:1;
-        sq_wav={offset{1}+amp{1}*square(2*pi*freq.*t), offset{2}+amp{2}*square(2*pi*freq.*t), ...
-            offset{3}+amp{3}*square(2*pi*freq.*t), offset{4}+amp{4}*square(2*pi*freq.*t)};
-end

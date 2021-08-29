@@ -42,7 +42,12 @@ if (clientID>-1)
     rolling_fr, slipping_fr, wheel_fr] = sysCall_init(sim, clientID);
 
     while true
+        % Leitura da posição do robô em relação ao centro do cenário
+        % Leitura da posição das tags de destino em relação ao centro de massa do robô 
         [sys_motor] = getMotorSys();
+        [positionRobo] = getPositionRobo(sim,clientID);
+        [positionTag] = getPositionTags(sim,clientID);
+        
         switch setupState
         case TYPES_SETUP_STATES(1)
             [sq_wav, t] = generatePWMSignal(10, [-1; -1; -1; -1]);
@@ -106,17 +111,21 @@ if (clientID>-1)
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(2);
         case TYPES_SETUP_STATES(2)
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(3);
         case TYPES_SETUP_STATES(3)
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(4);
         case TYPES_SETUP_STATES(4)
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = TYPES_SETUP_STATES(5);
         case TYPES_SETUP_STATES(5)
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             setupState = '';
         otherwise
-            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
             disp('FIM DA SIMULAÇÃO');
             break
         end
