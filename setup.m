@@ -11,7 +11,7 @@ TYPES_SETUP_STATES = ['TIPOS DE DESLOCAMENTOS DO ROBÔ', ...
     'PERCURSO, SEGUNDO DESTIVO',                        ...
     'PERCURSO, TERCEIRO DESTIVO',                       ...
     'PERCURSO, QUARTO DESTIVO'];
-setupState = TYPES_SETUP_STATES(1);
+setupState = TYPES_SETUP_STATES(2);
 
 %% Guia para vetor de velocidades angulares
 %  __                         % __
@@ -26,12 +26,12 @@ setupState = TYPES_SETUP_STATES(1);
 % !IMPORTANTE!  ROTAÇÕES NA ROA SENTIDO HORÁRIO DEVEM TER SINAIS PWM
 % NEGATIVOS E NO ANT-HORÁRIO, POSIIVOS!
 
-ERROR_MIN_DISTANCE = 0.001;
-
 %% Simulação, CoppeliaSim
 sim=remApi('remoteApi'); % using the prototype file (remoteApiProto.m)
 sim.simxFinish(-1); % just in case, close all opened connections
 clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
+
+AMP_ERROR_ANGLE = 0;
 
 if (clientID>-1)
     disp('Connected to remote API server');
@@ -44,10 +44,10 @@ if (clientID>-1)
 
     while true
         % Leitura da posição do robô em relação ao centro do cenário
-        % Leitura da posição das tags de destino em relação ao centro de massa do robô 
+        % Leitura da posição das tags de destino em relação ao centro do cenário
         [sys_motor] = getMotorSys();
         [positionRobo, eulerAnglesRobo] = getPositionRobo(sim,clientID);
-        [positionTag] = getPositionTags(sim,clientID);
+        [positionTag, eulerAnglesTag] = getPositionTags(sim,clientID);
         
         switch setupState
         case TYPES_SETUP_STATES(1)
@@ -105,43 +105,78 @@ if (clientID>-1)
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
-                 
+
             [sq_wav, t] = generatePWMSignal([10 10 10 10], [1; 0; 0; 1]);
-            
             [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
             speedVector(1),speedVector(2),speedVector(3));
             pause(5);
             
             setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
-            setupState = TYPES_SETUP_STATES(2);
+            setupState = 'FIM DA SIMULACAO';
+            
         case TYPES_SETUP_STATES(2)
-            %error_x = positionRobo(1) - positionTag{1}(1);
-            %error_y = positionRobo(1) - positionTag{1}(1);
-            %taxas = [(100*error_x)/5 (100*error_y)/5];
-            %[sq_wav, t] = generatePWMSignal([taxas(1) taxas(2) taxas(1) taxas(2)], [-1; -1; -1; -1]);
-            %[speedVector] = getInnerMesh(sys_motor, sq_wav, t);
-            %setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
-            %speedVector(1),speedVector(2),speedVector(3));
-            %if abs(error_x) < ERROR_MIN_DISTANCE && error_y < ERROR_MIN_DISTANCE
-                %setupState = TYPES_SETUP_STATES(3);
-            %end
-            disp(eulerAnglesRobo);
+            errors_xyz = positionTag{1} - positionRobo;
+            error_w = (eulerAnglesTag{1}(3) - eulerAnglesRobo(3))*AMP_ERROR_ANGLE;
+
+            [freq, array_direction] = getArrayVelocityByDisplacement([errors_xyz(1); errors_xyz(2); error_w(1)]);
+
+            [sq_wav, t] = generatePWMSignal(freq, array_direction);
+            [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+            speedVector(1),speedVector(2),speedVector(3));
+        
+            if freq(1) == 0 && freq(2) == 0 && freq(3) == 0 && freq(4) == 0
+                setupState = TYPES_SETUP_STATES(3);
+            end
+            
         case TYPES_SETUP_STATES(3)
-            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
-            setupState = TYPES_SETUP_STATES(4);
+            errors_xyz = positionTag{2} - positionRobo;
+            error_w = (eulerAnglesTag{2}(3) - eulerAnglesRobo(3))*AMP_ERROR_ANGLE;
+
+            [freq, array_direction] = getArrayVelocityByDisplacement([errors_xyz(1); errors_xyz(2); error_w(1)]);
+
+            [sq_wav, t] = generatePWMSignal(freq, array_direction);
+            [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+            speedVector(1),speedVector(2),speedVector(3));
+        
+            if freq(1) == 0 && freq(2) == 0 && freq(3) == 0 && freq(4) == 0
+                setupState = TYPES_SETUP_STATES(4);
+            end
         case TYPES_SETUP_STATES(4)
-            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
-            setupState = TYPES_SETUP_STATES(5);
+            errors_xyz = positionTag{3} - positionRobo;
+            error_w = (eulerAnglesTag{3}(3) - eulerAnglesRobo(3))*AMP_ERROR_ANGLE;
+
+            [freq, array_direction] = getArrayVelocityByDisplacement([errors_xyz(1); errors_xyz(2); error_w(1)]);
+
+            [sq_wav, t] = generatePWMSignal(freq, array_direction);
+            [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+            speedVector(1),speedVector(2),speedVector(3));
+        
+            if freq(1) == 0 && freq(2) == 0 && freq(3) == 0 && freq(4) == 0
+                setupState = TYPES_SETUP_STATES(5);
+                pause(5);
+            end
         case TYPES_SETUP_STATES(5)
-            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,0,0,0);
-            setupState = '';
+            errors_xyz = positionTag{4} - positionRobo;
+            error_w = (eulerAnglesTag{4}(3) - eulerAnglesRobo(3))*AMP_ERROR_ANGLE;
+
+            [freq, array_direction] = getArrayVelocityByDisplacement([errors_xyz(1); errors_xyz(2); error_w(1)]);
+
+            [sq_wav, t] = generatePWMSignal(freq, array_direction);
+            [speedVector] = getInnerMesh(sys_motor, sq_wav, t);
+            setMovement(sim,clientID,rolling_rl,rolling_rr,rolling_fl,rolling_fr,...
+            speedVector(1),speedVector(2),speedVector(3));
+                    
+            if freq(1) == 0 && freq(2) == 0 && freq(3) == 0 && freq(4) == 0
+                setupState = 'FIM DA SIMULACAO';
+            end
         otherwise
-            disp('FIM DA  ');
+            disp(setupState);
             break
         end
-        
-    
     end
     
 else
