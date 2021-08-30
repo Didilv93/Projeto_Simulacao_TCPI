@@ -1,3 +1,15 @@
+% Autores: Diego Santos silva, Cleves Henrique, Gustavo Oliveira
+
+%% INSTRUÇÕES DE EXECUÇÃO
+% 1. Recomendo a utilização do MATLAB versão 2021a, versões antigas podem
+% icorrer em erros de incompatibilidade entre tipos numérios
+% 2. Para que a simulação ocorra com sucesso, é necessário copiar os
+% arquivos "remoteApi.dll" e "remoteApi.dll" na pasta C:\Program Files\CoppeliaRobotics\CoppeliaSimEdu\programming\remoteApiBindings\matlab\matlab
+% e sobrescrever no diretório do projeto.
+% 3. É necessário primeiro rodar a simulação no CoppeliaSim, para
+% posteriormente executar o script setup.
+
+
 clear;
 close all;
 clc;
